@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Phishing URL Detector</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      background: linear-gradient(to right, #000 50%, #f5f7fa 50%);
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
+      overflow-y: auto;
+    }
+
+    .slideshow-container {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 50%;
+      height: 100vh;
+      overflow: hidden;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .slide {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+
+    .slide.active {
+      opacity: 0.25;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 650px;
+      margin: 40px auto 40px 55%;
+      padding: 30px;
+      background-color: rgb(210, 96, 3);
+      border-radius: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.08);  
+      position: relative;
+      z-index: 1;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      padding: 18px;
+      margin-top: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 20px;
+    }
+
+    label {
+      font-size: 24px;
+    }
+
+    button {
+      padding: 12px 24px;
+      background-color: #f50b0b;
+      border: none;
+      color: white;
+      font-size: 18px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    h1 {
+      color: #121213;
+      text-align: center;
+    }
+
+    .result {
+      margin-top: 20px;
+    }
+
+    .result p {
+      font-size: 18px;
+      margin: 8px 0;
+    }
+
+    .safe {
+      color: green;
+      font-weight: bold;
+    }
+
+    .phishing {
+      color: red;
+      font-weight: bold;
+    }
+
+    canvas#scoreChart {
+      margin: 20px auto 10px auto;
+      display: block;
+      width: 500px !important;
+      height: 500px !important;
+    }
+
+    .tips-box {
+      background-color: #e6fff2;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 30px;
+    }
+
+    .tips-box h2 {
+      display: flex;
+      align-items: center;
+      color: #006644;
+      font-size: 28px;
+    }
+
+    .tips-box h2::before {
+      content: '🛡️';
+      margin-right: 8px;
+    }
+
+    .tips-box ul {
+      padding-left: 20px;
+    }
+
+    .tips-box li {
+      margin: 8px 0;
+      font-size: 18px;
+    }
+
+    .chart-legend {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 18px;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="slideshow-container">
+    <img src="{{ url_for('static', filename='hacker1.png') }}" class="slide active">
+    <img src="{{ url_for('static', filename='hacker2.png') }}" class="slide">
+    <img src="{{ url_for('static', filename='hacker3.png') }}" class="slide">
+  </div>
+
+  <div class="container">
+    <h1>Phishing URL Detector</h1>
+
+    <form action="/predict" method="POST">
+      <label for="url">🔗 Enter URL:</label>
+      <input type="text" name="url" id="url" placeholder="https://example.com" required />
+      <button type="submit">Check</button>
+    </form>
+
+    <div class="result">
+      <p>🔗 URL: {{ url }}</p>
+      <p>☠️ Phishing Probability: <strong>{{ phishing_score }}%</strong></p>
+      <p>✅ Legitimate Probability: <strong>{{ safe_score }}%</strong></p>
+    </div>
+
+    {% if phishing_score and safe_score %}
+      <canvas id="scoreChart"></canvas>
+      <div class="chart-legend"></div>
+    {% endif %}
+
+    <div class="tips-box">
+      <h2>Online Safety Tips</h2>
+      <ul>
+        <li>✅ Verify the website URL before entering login credentials.</li>
+        <li>🔒 Look for HTTPS and the lock icon in the address bar.</li>
+        <li>🚫 Avoid clicking on suspicious links in emails or messages.</li>
+        <li>🛠️ Keep your browser and antivirus software updated.</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const phishing = {{ phishing_score }};
+    const legitimate = {{ safe_score }};
+    if (phishing && legitimate) {
+      const ctx = document.getElementById('scoreChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Phishing', 'Legitimate'],
+          datasets: [{
+            data: [phishing, legitimate],
+            backgroundColor: ['#ff4d4f', '#36d399'],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: 'black',
+                font: {
+                  size: 16
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    let slides = document.querySelectorAll(".slide");
+    let index = 0;
+    setInterval(() => {
+      slides[index].classList.remove("active");
+      index = (index + 1) % slides.length;
+      slides[index].classList.add("active");
+    }, 3000);
+  </script>
+</body>
+</html>
