@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      min-height: 100vh;
+      flex-wrap: wrap;
+    }
+
+    .slideshow {
+      width: 60%;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+      background-color: #080808;
+    }
+
+    .slideshow img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+
+    .slideshow img.active {
+      opacity: 0.25;
+    }
+
+    .right-panel {
+      width: 40%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #706969;
+    }
+
+    .register-box {
+      background: #053351;
+      padding: 50px;
+      border-radius: 15px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .register-box h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+
+    .register-box input {
+      width: 100%;
+      padding: 14px 16px;
+      margin-bottom: 15px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    .register-box button {
+      width: 100%;
+      padding: 14px;
+      background-color: red;
+      color: white;
+      border: none;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .register-box p {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 14px;
+      color: #fff;
+    }
+
+    .register-box p a {
+      color: white;
+      text-decoration: underline;
+    }
+
+    @media screen and (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      .slideshow {
+        display: none;
+      }
+      .right-panel {
+        width: 100%;
+        padding: 20px;
+        background: linear-gradient(to right, #004e92, #000428);
+      }
+      .register-box {
+        padding: 40px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="slideshow">
+    <img src="{{ url_for('static', filename='hacker1.png') }}" class="slide active">
+    <img src="{{ url_for('static', filename='hacker2.png') }}" class="slide">
+    <img src="{{ url_for('static', filename='hacker3.png') }}" class="slide">
+  </div>
+
+  <div class="right-panel">
+    <div class="register-box">
+      <h2>Register</h2>
+      {% if error %}
+        <p style="color: yellow; text-align: center;">{{ error }}</p>
+      {% endif %}
+      <form method="POST">
+        <input type="text" name="name" placeholder="Enter your name" required>
+        <input type="email" name="email" placeholder="Enter your email" required>
+        <input type="password" name="password" placeholder="Create a password" required>
+        <button type="submit">Register</button>
+      </form>
+      <p>Already have an account? <a href="/login">Login here</a></p>
+    </div>
+  </div>
+
+  <script>
+    const slides = document.querySelectorAll(".slide");
+    let index = 0;
+    setInterval(() => {
+      slides[index].classList.remove("active");
+      index = (index + 1) % slides.length;
+      slides[index].classList.add("active");
+    }, 3000);
+  </script>
+
+</body>
+</html>

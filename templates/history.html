@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phishing Detection History</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: url("{{ url_for('static', filename='history-bg.png') }}") no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
+    }
+
+    .back-button {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 10px 16px;
+      font-size: 16px;
+      background-color: #fd0909;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+    }
+
+    .back-button:hover {
+      background-color: #0056b3;
+    }
+
+    .history-container {
+      max-width: 950px;
+      margin: 100px auto 50px 150px;
+      padding: 30px;
+      background-color: rgba(0, 0, 0, 0.6);
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(4px);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    form {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    form button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #00ffff;
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    form button:hover {
+      background-color: #00cccc;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    th, td {
+      border: 1px solid #00ffff;
+      padding: 12px;
+      text-align: center;
+    }
+
+    th {
+      background-color: rgba(0, 0, 0, 0.4);
+      color: #00ffff;
+    }
+
+    td {
+      color: #ffffff;
+      word-wrap: break-word;
+    }
+
+    @media screen and (max-width: 768px) {
+      .history-container {
+        margin: 80px 15px 30px 15px;
+        padding: 20px;
+      }
+
+      .back-button {
+        position: static;
+        display: block;
+        margin: 15px auto;
+        width: fit-content;
+        font-size: 14px;
+        padding: 8px 14px;
+      }
+
+      form button {
+        font-size: 14px;
+        padding: 8px 16px;
+      }
+
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+
+      thead {
+        display: none;
+      }
+
+      tr {
+        margin-bottom: 15px;
+        border: 1px solid #00ffff;
+        border-radius: 8px;
+        padding: 10px;
+        background-color: rgba(0, 0, 0, 0.4);
+      }
+
+      td {
+        text-align: left;
+        padding: 8px 10px;
+        position: relative;
+      }
+
+      td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+        color: #00ffff;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="{{ url_for('dashboard') }}" class="back-button">🏠 Back to Dashboard</a>
+
+  <div class="history-container">
+    <h1>🧠 Phishing Detection History</h1>
+
+    <form action="{{ url_for('clear_history') }}" method="POST" onsubmit="return confirm('Do you want to delete the history?');">
+      <button type="submit">🧹 Clear History</button>
+    </form>
+
+    <table>
+      <thead>
+        <tr>
+          <th>URL</th>
+          <th>Time Checked</th>
+          <th>Date Checked</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in history %}
+        <tr>
+          <td data-label="URL">{{ item.url }}</td>
+          <td data-label="Time Checked">{{ item.time }}</td>
+          <td data-label="Date Checked">{{ item.date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
